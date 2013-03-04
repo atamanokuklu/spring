@@ -3930,6 +3930,10 @@
 						RelativePath="..\..\Sim\Projectiles\WeaponProjectiles\WeaponProjectile.h"
 						>
 					</File>
+					<File
+						RelativePath="..\..\Sim\Projectiles\WeaponProjectiles\WeaponProjectileTypes.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -5827,6 +5831,14 @@
 				</File>
 				<File
 					RelativePath="..\..\System\Platform\SharedLib.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\System\Platform\SimThreadPool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\System\Platform\SimThreadPool.h"
 					>
 				</File>
 				<File
