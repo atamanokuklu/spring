@@ -45,9 +45,10 @@ public:
 	static void CreateLineTable();
 	static void DeleteLineTable();
 
+	void ChangeTargetHeading(short heading);
+
 private:
 	float3 GetObstacleAvoidanceDir(const float3& desiredDir);
-	float Distance2D(CSolidObject* object1, CSolidObject* object2, float marginal = 0.0f);
 
 	void GetNewPath();
 	void GetNextWayPoint();

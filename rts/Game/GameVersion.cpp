@@ -11,6 +11,7 @@
 #include <boost/version.hpp>
 #include <boost/config.hpp>
 
+#define CUSTOM_ENGINE_TYPE
 /**
  * @brief Defines the current version string.
  * Take special care when moving this file.
@@ -27,7 +28,7 @@ const std::string& GetMajor()
 
 const std::string& GetMinor()
 {
-	static const std::string minor = "0";
+	static const std::string minor = "1";
 	return minor;
 }
 

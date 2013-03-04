@@ -409,6 +409,7 @@ int CLuaHandle::SetupTraceback(lua_State *L)
 
 int CLuaHandle::RunCallInTraceback(const LuaHashString* hs, int inArgs, int outArgs, int errfuncIndex, std::string& traceback)
 {
+	ASSERT_SINGLETHREADED_SIM(); // lua can never ever be MT-safe
 	// do not signal floating point exceptions in user Lua code
 	ScopedDisableFpuExceptions fe;
 
@@ -416,6 +417,7 @@ int CLuaHandle::RunCallInTraceback(const LuaHashString* hs, int inArgs, int outA
 	SetRunning(L, true);
 	// disable GC outside of this scope to prevent sync errors and similar
 	lua_gc(L, LUA_GCRESTART, 0);
+	int top = lua_gettop(L);
 	MatrixStateData prevMSD = L->lcd->PushMatrixState();
 	LuaOpenGL::InitMatrixState(L, hs);
 	const int error = lua_pcall(L, inArgs, outArgs, errfuncIndex);
@@ -427,11 +429,27 @@ int CLuaHandle::RunCallInTraceback(const LuaHashString* hs, int inArgs, int outA
 
 	if (error == 0) {
 		// pop the error handler
+		if (outArgs != LUA_MULTRET) {
+			int retdiff = (lua_gettop(L) - (top - 1)) - (outArgs - inArgs);
+			if (retdiff != 0) {
+				LOG_L(L_ERROR, "Internal Lua error: %d return values, %d expected", outArgs + retdiff, outArgs);
+				lua_pop(L, retdiff);
+			}
+		}
+		else {
+			int retdiff = (lua_gettop(L) - (top - 1)) + inArgs;
+			if (retdiff < 0) {
+				LOG_L(L_ERROR, "Internal Lua error: %d return values", retdiff);
+				lua_pop(L, retdiff);
+			}
+		}
 		if (errfuncIndex != 0) {
 			lua_remove(L, errfuncIndex);
 		}
 	} else {
-		traceback = lua_tostring(L, -1);
+		int retdiff = (lua_gettop(L) - (top - 1)) - (1 - inArgs);
+		lua_pop(L, retdiff); // BUG? only the traceback shall be returned, but occasionally something goes wrong
+		traceback = std::string((retdiff != 0) ? "[Internal Lua error: Traceback failure] " : "") + (lua_isstring(L, -1) ? lua_tostring(L, -1) : "[No traceback returned]");
 		lua_pop(L, 1);
 		if (errfuncIndex != 0)
 			lua_remove(L, errfuncIndex);
@@ -542,7 +560,7 @@ void CLuaHandle::GameStart()
 void CLuaHandle::GameOver(const std::vector<unsigned char>& winningAllyTeams)
 {
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 2);
+	lua_checkstack(L, 4);
 
 	int errfunc = SetupTraceback(L);
 
@@ -926,7 +944,7 @@ void CLuaHandle::UnitCommand(const CUnit* unit, const Command& command)
 {
 	LUA_UNIT_BATCH_PUSH(,UNIT_COMMAND, unit, command);
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 11);
+	lua_checkstack(L, 9);
 
 	int errfunc = SetupTraceback(L);
 
@@ -988,7 +1006,7 @@ void CLuaHandle::UnitDamaged(const CUnit* unit, const CUnit* attacker,
 {
 	LUA_UNIT_BATCH_PUSH(,UNIT_DAMAGED, unit, attacker, damage, weaponID, paralyzer);
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 11);
+	lua_checkstack(L, 12);
 
 	int errfunc = SetupTraceback(L);
 
@@ -1249,7 +1267,7 @@ void CLuaHandle::UnitUnitCollision(const CUnit* collider, const CUnit* collidee)
 
 	LUA_UNIT_BATCH_PUSH(,UNIT_UNIT_COLLISION, collider, collidee);
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 5);
+	lua_checkstack(L, 6);
 
 	static const LuaHashString cmdStr("UnitUnitCollision");
 	const int errFunc = SetupTraceback(L);
@@ -1277,7 +1295,7 @@ void CLuaHandle::UnitFeatureCollision(const CUnit* collider, const CFeature* col
 
 	LUA_OBJ_BATCH_PUSH(UNIT_FEAT_COLLISION, collider, collidee);
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 5);
+	lua_checkstack(L, 6);
 
 	static const LuaHashString cmdStr("UnitFeatureCollision");
 	const int errFunc = SetupTraceback(L);
@@ -1949,7 +1967,7 @@ void CLuaHandle::Update()
 void CLuaHandle::ViewResize()
 {
 	LUA_CALL_IN_CHECK(L);
-	lua_checkstack(L, 5);
+	lua_checkstack(L, 3);
 	static const LuaHashString cmdStr("ViewResize");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return;
@@ -1980,7 +1998,7 @@ bool CLuaHandle::DefaultCommand(const CUnit* unit,
                                 const CFeature* feature, int& cmd)
 {
 	LUA_CALL_IN_CHECK(L, false);
-	lua_checkstack(L, 4);
+	lua_checkstack(L, 6);
 	static const LuaHashString cmdStr("DefaultCommand");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return false;
@@ -2234,7 +2252,7 @@ bool CLuaHandle::KeyPress(unsigned short key, bool isRepeat)
 		return false;
 	}
 	LUA_CALL_IN_CHECK(L, false);
-	lua_checkstack(L, 6);
+	lua_checkstack(L, 7);
 	static const LuaHashString cmdStr("KeyPress");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return false; // the call is not defined, do not take the event
@@ -2276,7 +2294,7 @@ bool CLuaHandle::KeyRelease(unsigned short key)
 		return false;
 	}
 	LUA_CALL_IN_CHECK(L, false);
-	lua_checkstack(L, 5);
+	lua_checkstack(L, 6);
 	static const LuaHashString cmdStr("KeyRelease");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return false; // the call is not defined, do not take the event
@@ -2521,7 +2539,7 @@ bool CLuaHandle::ConfigCommand(const string& command)
 		return true; // FIXME ?
 	}
 	LUA_CALL_IN_CHECK(L, true);
-	lua_checkstack(L, 2);
+	lua_checkstack(L, 3);
 	static const LuaHashString cmdStr("ConfigureLayout");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return true; // the call is not defined
@@ -2694,7 +2712,7 @@ bool CLuaHandle::MapDrawCmd(int playerID, int type,
 		return false;
 	}
 	LUA_CALL_IN_CHECK(L, false);
-	lua_checkstack(L, 9);
+	lua_checkstack(L, 10);
 	static const LuaHashString cmdStr("MapDrawCmd");
 	if (!PushUnsyncedCallIn(L, cmdStr)) {
 		return false; // the call is not defined

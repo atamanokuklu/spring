@@ -561,6 +561,7 @@
     <ClInclude Include="..\..\Rendering\GLContext.h" />
     <ClInclude Include="..\..\Rendering\glFont.h" />
     <ClInclude Include="..\..\Rendering\GlobalRendering.h" />
+    <ClInclude Include="..\..\Rendering\GL\PBO.h" />
     <ClInclude Include="..\..\Rendering\GL\VBO.h" />
     <ClInclude Include="..\..\Rendering\GroundFlash.h" />
     <ClInclude Include="..\..\Rendering\HUDDrawer.h" />
@@ -602,7 +603,6 @@
     <ClInclude Include="..\..\Rendering\Gl\IFramebuffer.h" />
     <ClInclude Include="..\..\Rendering\GL\LightHandler.h" />
     <ClInclude Include="..\..\Rendering\Gl\myGL.h" />
-    <ClInclude Include="..\..\Rendering\GL\PBO.h" />
     <ClInclude Include="..\..\Rendering\Gl\VertexArray.h" />
     <ClInclude Include="..\..\Rendering\Gl\VertexArrayRange.h" />
     <ClInclude Include="..\..\Rendering\Textures\3DOTextureHandler.h" />
@@ -814,11 +814,13 @@
     <ClInclude Include="..\..\System\Object.h" />
     <ClInclude Include="..\..\System\OffscreenGLContext.h" />
     <ClInclude Include="..\..\System\Option.h" />
+    <ClInclude Include="..\..\System\Platform\ThreadingConfig.h" />
     <ClInclude Include="..\..\System\resource.h" />
     <ClInclude Include="..\..\System\SafeCStrings.h" />
     <ClInclude Include="..\..\System\SafeVector.h" />
     <ClInclude Include="..\..\System\ScopedFPUSettings.h" />
     <ClInclude Include="..\..\System\SpringApp.h" />
+    <ClInclude Include="..\..\System\Sync\DesyncDetector.h" />
     <ClInclude Include="..\..\System\tdf_grammar.h" />
     <ClInclude Include="..\..\System\TdfParser.h" />
     <ClInclude Include="..\..\System\TimeProfiler.h" />
@@ -2088,6 +2090,7 @@
     <ClCompile Include="..\..\System\SafeCStrings.c" />
     <ClCompile Include="..\..\System\SafeVector.cpp" />
     <ClCompile Include="..\..\System\SpringApp.cpp" />
+    <ClCompile Include="..\..\System\Sync\DesyncDetector.cpp" />
     <ClCompile Include="..\..\System\TdfParser.cpp" />
     <ClCompile Include="..\..\System\TimeProfiler.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug+MT|Win32'">
