@@ -45,6 +45,7 @@
 #include "System/Log/ILog.h"
 #include "System/Net/RawPacket.h"
 #include "System/Net/UnpackPacket.h"
+#include "System/Platform/EngineTypeHandler.h"
 #include "System/Platform/errorhandler.h"
 #include "lib/luasocket/src/restrictions.h"
 
@@ -226,6 +227,10 @@ void CPreGame::UpdateClientNet()
 	boost::shared_ptr<const RawPacket> packet;
 	while ((packet = net->GetData(gs->frameNum)))
 	{
+		if (packet->length <= 0) {
+			LOG_L(L_WARNING, "Zero-length packet in CPreGame");
+			continue;
+		}
 		const unsigned char* inbuf = packet->data;
 		switch (inbuf[0]) {
 			case NETMSG_QUIT: {
@@ -234,9 +239,36 @@ void CPreGame::UpdateClientNet()
 					std::string message;
 					pckt >> message;
 					LOG("%s", message.c_str());
+					if (EngineTypeHandler::WillRestartEngine(message)) {
+						SetExitCode(1);
+						gu->globalQuit = true;
+						net->Close(true);
+						return;
+					}
 					handleerror(NULL, "Remote requested quit: " + message, "Quit message", MBF_OK | MBF_EXCL);
 				} catch (const netcode::UnpackPacketException& ex) {
 					LOG_L(L_ERROR, "Got invalid QuitMessage: %s", ex.what());
+				}
+				break;
+			}
+			case NETMSG_CUSTOM_DATA: {
+				// server can request client to launch another engine type
+				try {
+					netcode::UnpackPacket pckt(packet, 1);
+					unsigned char playernum, datatype;
+					int data;
+					pckt >> playernum;
+					pckt >> datatype;
+					pckt >> data;
+					switch (datatype) {
+						case CUSTOM_DATA_ENGINETYPE:
+							EngineTypeHandler::SetRequestedEngineType(data & 0xFFFF, data >> 16);
+							break;
+						default:
+							LOG_L(L_ERROR, "Got invalid CustomData type: %d", (int)datatype);
+					}
+				} catch (const netcode::UnpackPacketException& ex) {
+					LOG_L(L_ERROR, "Got invalid CustomData message: %s", ex.what());
 				}
 				break;
 			}
@@ -273,6 +305,22 @@ void CPreGame::UpdateClientNet()
 				break;
 			}
 			case NETMSG_GAMEDATA: {
+
+				EngineTypeHandler::EngineTypeVersion reqetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
+				reqetv.type = 0;
+				reqetv.minorv = 0;
+				EngineTypeHandler::EngineTypeVersion curetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
+				std::string enginereq = EngineTypeHandler::GetEngine(reqetv);
+				std::string engineinst = EngineTypeHandler::GetEngine(curetv);
+				std::string etvmsg = "Wrong engine type or version!\n\nThis server requires engine: " + enginereq + "\n\nCurrently installed engine: " + engineinst;
+
+				if (EngineTypeHandler::WillRestartEngine(etvmsg, true)) {
+					SetExitCode(1);
+					gu->globalQuit = true;
+					net->Send(CBaseNetProtocol::Get().SendQuit("Restarting Spring"));
+					net->Close(true);
+					return;
+				}
 				// server first sends this to let us know about teams, allyteams
 				// etc.
 				// (not if we are joining mid-game as extra players)
