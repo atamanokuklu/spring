@@ -41,8 +41,9 @@ INCLUDE_DIRECTORIES(${engineIncludes})
 
 ### Build the executable
 ADD_EXECUTABLE(engine-multithreaded ${EXE_FLAGS} ${engineSources} ${ENGINE_ICON_GML} ${engineHeaders})
+LIST(REMOVE_ITEM engineLibraries squish rgetc1)
 TARGET_LINK_LIBRARIES(engine-multithreaded gml ${engineLibraries})
-SET_TARGET_PROPERTIES(engine-multithreaded PROPERTIES OUTPUT_NAME "spring-mt")
+SET_TARGET_PROPERTIES(engine-multithreaded PROPERTIES OUTPUT_NAME "spring-mt-1")
 
 
 ### Install the executable
