@@ -1731,10 +1731,14 @@ void CGameServer::ServerReadNet()
 				msg >> reconnect;
 				msg >> netloss;
 				if (sscanf(version.c_str(), "MT %d-%d.%d", &etv.majorv, &etv.minorv, &etv.patch) == 3 ||
-					sscanf(version.c_str(), "MT %d.%d", &etv.majorv, &etv.patch) == 2)
+					sscanf(version.c_str(), "MT %d-%d", &etv.majorv, &etv.minorv) == 2 ||
+					sscanf(version.c_str(), "MT %d.%d", &etv.majorv, &etv.patch) == 2 ||
+					sscanf(version.c_str(), "MT %d", &etv.majorv) == 1) {
 					etv.type = 1;
-				else
-					sscanf(version.c_str(), "%d.%d", &etv.majorv, &etv.patch);
+				} else {
+					if (sscanf(version.c_str(), "%d.%d", &etv.majorv, &etv.patch) != 2)
+						sscanf(version.c_str(), "%d", &etv.majorv);
+				}
 				boost::shared_ptr<netcode::CConnection> newconn = UDPNet->AcceptConnection();
 				EngineTypeHandler::EngineTypeVersion curetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
 				if (curetv != etv) {
@@ -2548,6 +2552,10 @@ unsigned CGameServer::BindConnection(std::string name, const std::string& passwd
 	}
 
 	newPlayer.Connected(link, isLocal);
+
+	EngineTypeHandler::EngineTypeVersion curetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
+	newPlayer.SendData(CBaseNetProtocol::Get().SendRequestEngineType(curetv.type, curetv.minorv));
+
 	newPlayer.SendData(boost::shared_ptr<const RawPacket>(gameData->Pack()));
 	newPlayer.SendData(CBaseNetProtocol::Get().SendSetPlayerNum((unsigned char)newPlayerNumber));
 

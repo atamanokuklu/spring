@@ -31,7 +31,7 @@ namespace EngineTypeHandler {
 
 	void SetRequestedEngineType(int engineType, int engineMinor);
 
-	bool WillRestartEngine(const std::string& message);
+	bool WillRestartEngine(const std::string& message, bool gamedata = false);
 
 	bool RestartEngine(const std::string& exe, std::vector<std::string>& args);
 

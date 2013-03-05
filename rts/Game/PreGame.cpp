@@ -305,6 +305,22 @@ void CPreGame::UpdateClientNet()
 				break;
 			}
 			case NETMSG_GAMEDATA: {
+
+				EngineTypeHandler::EngineTypeVersion reqetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
+				reqetv.type = 0;
+				reqetv.minorv = 0;
+				EngineTypeHandler::EngineTypeVersion curetv = EngineTypeHandler::GetCurrentEngineTypeVersion();
+				std::string enginereq = EngineTypeHandler::GetEngine(reqetv);
+				std::string engineinst = EngineTypeHandler::GetEngine(curetv);
+				std::string etvmsg = "Wrong engine type or version!\n\nThis server requires engine: " + enginereq + "\n\nCurrently installed engine: " + engineinst;
+
+				if (EngineTypeHandler::WillRestartEngine(etvmsg, true)) {
+					SetExitCode(1);
+					gu->globalQuit = true;
+					net->Send(CBaseNetProtocol::Get().SendQuit("Restarting Spring"));
+					net->Close(true);
+					return;
+				}
 				// server first sends this to let us know about teams, allyteams
 				// etc.
 				// (not if we are joining mid-game as extra players)

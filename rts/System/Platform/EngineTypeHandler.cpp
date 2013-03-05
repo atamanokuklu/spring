@@ -49,7 +49,11 @@ namespace EngineTypeHandler {
 		LOG("Server requested engine type: %d, minor version: %d", engineType, engineMinor);
 	}
 
-	bool WillRestartEngine(const std::string& message) {
+	bool WillRestartEngine(const std::string& message, bool gamedata) {
+		if (gamedata && (reqEngineType < 0 || reqEngineMinor < 0) && GetCurrentEngineType() != 0) {
+			reqEngineType = 0;
+			reqEngineMinor = 0;
+		}
 		if ((reqEngineType >= 0 && (reqEngineType != GetCurrentEngineType())) || 
 			(reqEngineMinor >= 0 && (reqEngineMinor != GetMinorVersion()))) {
 				EngineTypeInfo* eti = GetEngineTypeInfo(reqEngineType);
