@@ -78,16 +78,26 @@ std::string GetAdditional()
 #endif
 	
 #if defined USE_GML
-	GV_ADD_SPACE "MT"
+	GV_ADD_SPACE "GML"
 	#undef  GV_ADD_SPACE
 	#define GV_ADD_SPACE " "
 #endif
-#if defined USE_GML_SIM
-	"-Sim"
-#endif
+
 #if defined USE_GML_DEBUG
-	"+Debug"
+	GV_ADD_SPACE "GDB"
+	#undef  GV_ADD_SPACE
+	#define GV_ADD_SPACE " "
 #endif
+
+#if defined USE_GML_SIM
+	GV_ADD_SPACE "ASIM"
+	#undef  GV_ADD_SPACE
+	#define GV_ADD_SPACE " "
+#endif
+
+	GV_ADD_SPACE "APATH"
+	#undef  GV_ADD_SPACE
+	#define GV_ADD_SPACE " "
 
 #if defined TRACE_SYNC
 	GV_ADD_SPACE "Sync-Trace"
@@ -187,11 +197,28 @@ bool IsRelease()
 	return release;
 }
 
+
+const std::string GetMajorPrefix()
+{
+#if defined(UNITSYNC) || !defined(CUSTOM_ENGINE_TYPE)
+	return "";
+#endif
+	return "MT ";
+}
+
+const std::string GetMinorModifier()
+{
+#if defined(UNITSYNC) || !defined(CUSTOM_ENGINE_TYPE) 
+	return "";
+#endif
+	return (GetMinor() == "0") ? "" : ("-" + GetMinor());
+}
+
 const std::string& Get()
 {
 	static const std::string base = IsRelease()
-			? GetMajor()
-			: (GetMajor() + "." + GetPatchSet() + ".1");
+			? GetMajorPrefix() + GetMajor() + GetMinorModifier()
+			: (GetMajorPrefix() + GetMajor() + GetMinorModifier() + "." + GetPatchSet() + ".1");
 
 	return base;
 }
@@ -199,7 +226,7 @@ const std::string& Get()
 const std::string& GetSync()
 {
 	static const std::string sync = IsRelease()
-			? GetMajor()
+			? GetMajorPrefix() + GetMajor() + GetMinorModifier()
 			: SPRING_VERSION_ENGINE;
 
 	return sync;

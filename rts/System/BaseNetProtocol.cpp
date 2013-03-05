@@ -7,6 +7,7 @@
 #include "System/Net/RawPacket.h"
 #include "System/Net/PackPacket.h"
 #include "System/Net/ProtocolDef.h"
+#include "System/Platform/EngineTypeHandler.h"
 #include <boost/cstdint.hpp>
 
 using netcode::PackPacket;
@@ -171,6 +172,10 @@ PacketType CBaseNetProtocol::SendSpeedControl(uchar myPlayerNum, int speedCtrl) 
 
 PacketType CBaseNetProtocol::SendLuaDrawTime(uchar myPlayerNum, int mSec) {
 	return SendCustomData(myPlayerNum, CUSTOM_DATA_LUADRAWTIME, mSec);
+}
+
+PacketType CBaseNetProtocol::SendRequestEngineType(int type, int minor) {
+	return SendCustomData(0, CUSTOM_DATA_ENGINETYPE, type | (minor << 16));
 }
 
 PacketType CBaseNetProtocol::SendDirectControl(uchar myPlayerNum)
