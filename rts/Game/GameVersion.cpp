@@ -28,7 +28,7 @@ const std::string& GetMajor()
 
 const std::string& GetMinor()
 {
-	static const std::string minor = "1";
+	static const std::string minor = "0";
 	return minor;
 }
 
