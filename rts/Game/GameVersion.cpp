@@ -95,9 +95,11 @@ std::string GetAdditional()
 	#define GV_ADD_SPACE " "
 #endif
 
+#if defined CUSTOM_ENGINE_TYPE
 	GV_ADD_SPACE "APATH"
 	#undef  GV_ADD_SPACE
 	#define GV_ADD_SPACE " "
+#endif
 
 #if defined TRACE_SYNC
 	GV_ADD_SPACE "Sync-Trace"
@@ -135,7 +137,7 @@ std::string GetAdditional()
 	#define GV_ADD_SPACE " "
 #endif
 
-#if defined _OPENMP
+#if defined _OPENMP && !defined CUSTOM_ENGINE_TYPE
 	GV_ADD_SPACE "OMP"
 	#undef  GV_ADD_SPACE
 	#define GV_ADD_SPACE " "
