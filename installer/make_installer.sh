@@ -39,6 +39,13 @@ if [ ! -s spring_testing_minimal-portable.7z ]; then
 	$WGET http://springrts.com/dl/buildbot/default/master/spring_testing_minimal-portable.7z
 fi
 
+$WGET http://zerver.net/spring_st.7z
+if [ ! -s spring_st.7z ]; then
+	echo "Error: spring_st.7z didn't exist"
+	exit 1
+fi
+
+
 cd ..
 rm -rf Springlobby
 mkdir -p Springlobby
@@ -56,6 +63,7 @@ installer/downloads/rapid-spring-latest-win32.7z:rapid\\ >installer/downloads/un
 makensis -V3 $NSISDEFINES $@ -DNSI_UNINSTALL_FILES=downloads/uninstall.nsh \
 -DRAPID_ARCHIVE=downloads/rapid-spring-latest-win32.7z \
 -DMIN_PORTABLE_ARCHIVE=downloads/spring_testing_minimal-portable.7z \
+-DSPRING_ST_ARCHIVE=downloads/spring_st.7z \
 -DVCREDIST=downloads/vcredist_x86.exe \
  installer/spring.nsi
 

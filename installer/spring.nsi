@@ -66,7 +66,7 @@ SetCompressor /FINAL /SOLID lzma
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} MT ${PRODUCT_VERSION}"
 
 !define SP_OUTSUFFIX1 ""
 
