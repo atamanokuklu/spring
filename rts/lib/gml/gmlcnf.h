@@ -66,6 +66,11 @@ namespace GML {
 	inline void Enable(bool /*enable*/) {}
 	inline bool SimEnabled() { return false; }
 #endif
+#ifdef HEADLESS
+	inline int NumMainThreads() { return 1; }
+#else
+	inline int NumMainThreads() { return SimEnabled() ? 2 : 1; }
+#endif
 };
 
 #endif
