@@ -94,6 +94,7 @@ public:
 	void UpdateMoveTypeThreadFunc(bool threaded);
 	void SlowUpdateMoveTypeInitThreadFunc(bool threaded);
 	void SlowUpdateMoveTypeThreadFunc(bool threaded);
+	void DelayedSlowUpdateMoveTypePart(int pos);
 	void DelayedSlowUpdateMoveTypeThreadFunc(bool threaded);
 
 private:
