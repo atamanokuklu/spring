@@ -39,7 +39,7 @@ if [ ! -s spring_testing_minimal-portable.7z ]; then
 	$WGET http://springrts.com/dl/buildbot/default/master/spring_testing_minimal-portable.7z
 fi
 
-$WGET http://zerver.net/spring_st.7z
+$WGET http://springrts.com/dl/buildbot/default/MTsim3/93.1-9-gb8259d8/win32/%7bMTsim3%7d93.1-9-gb8259d8_spring.7z -O spring_st.7z
 if [ ! -s spring_st.7z ]; then
 	echo "Error: spring_st.7z didn't exist"
 	exit 1
