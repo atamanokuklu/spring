@@ -66,7 +66,7 @@ SetCompressor /FINAL /SOLID lzma
 
 ; MUI end ------
 
-Name "Spring MT 93.01"
+Name "Spring MT 93.11"
 
 !define SP_OUTSUFFIX1 ""
 
