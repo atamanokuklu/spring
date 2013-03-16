@@ -63,8 +63,14 @@ if    (BUILD_${myName}_AIWRAPPER)
 	set_target_properties(${myTarget} PROPERTIES OUTPUT_NAME "${myName}")
 	Add_Dependencies(${myTarget} generateVersionFiles)
 
+	SET(sources_engine_System_cregx
+		"${CMAKE_CURRENT_SOURCE_DIR}/creg/Serializer.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/creg/VarTypes.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/creg/creg.cpp"
+	)
+	
 	# Compile the Legacy C++ AI wrapper static library with creg support
-	add_library(${myCregTarget} STATIC ${mySources} ${sources_engine_System_creg})
+	add_library(${myCregTarget} STATIC ${mySources} ${sources_engine_System_cregx})
 	set_target_properties(${myCregTarget} PROPERTIES OUTPUT_NAME   "${myName}Creg")
 	set_target_properties(${myCregTarget} PROPERTIES COMPILE_FLAGS "-DUSING_CREG")
 endif (BUILD_${myName}_AIWRAPPER)
