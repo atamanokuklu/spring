@@ -64,9 +64,9 @@ if    (BUILD_${myName}_AIWRAPPER)
 	Add_Dependencies(${myTarget} generateVersionFiles)
 
 	SET(sources_engine_System_cregx
-		"${CMAKE_CURRENT_SOURCE_DIR}/creg/Serializer.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/creg/VarTypes.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/creg/creg.cpp"
+		"${rts}/System/creg/Serializer.cpp"
+		"${rts}/System/creg/VarTypes.cpp"
+		"${rts}/System/creg/creg.cpp"
 	)
 	
 	# Compile the Legacy C++ AI wrapper static library with creg support
